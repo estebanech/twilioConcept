@@ -30,52 +30,40 @@ public class JwtProvider {
     @Value("${app.jwtRefreshExpirationInMs}")
     private int jwtRefreshExpirationInMs;
 
-    public String generateToken(final UserIn user){
+    private String generateToken(final UserIn user, final String secret, final int expiration,final SignatureAlgorithm algorithm){
         final LocalDateTime now = LocalDateTime.now();
-        final LocalDateTime expire = now.plusSeconds(jwtExpirationInMs);
+        final LocalDateTime expire = now.plusSeconds(expiration);
         return Jwts.builder()
                 .setSubject(Long.toString(user.getId()))
                 .setIssuedAt(Date.from(now.atZone(ZoneId.systemDefault()).toInstant()))
                 .setExpiration(Date.from(expire.atZone(ZoneId.systemDefault()).toInstant()))
-                .signWith(SignatureAlgorithm.HS512,jwtSecret)
+                .signWith(algorithm,secret)
                 .compact();
     }
 
-    public Long getUserIdFromJWT(final String token) {
-        Claims claims = Jwts.parser()
-                .setSigningKey(jwtSecret)
-                .parseClaimsJws(token)
-                .getBody();
-
-        return Long.parseLong(claims.getSubject());
+    public String generateAuthToken(final UserIn user){
+        return generateToken(user,jwtSecret,jwtExpirationInMs,SignatureAlgorithm.HS512);
     }
 
     public String generateRefresh(final UserIn user){
-        final LocalDateTime now = LocalDateTime.now();
-        final LocalDateTime expire = now.plusSeconds(jwtRefreshExpirationInMs);
-        return Jwts.builder()
-                .setSubject(Long.toString(user.getId()))
-                .setIssuedAt(Date.from(now.atZone(ZoneId.systemDefault()).toInstant()))
-                .setExpiration(Date.from(expire.atZone(ZoneId.systemDefault()).toInstant()))
-                .signWith(SignatureAlgorithm.HS384,jwtRefreshSecret)
-                .compact();
+        return generateToken(user,jwtRefreshSecret,jwtRefreshExpirationInMs,SignatureAlgorithm.HS512);
     }
 
-    public Long getUserIdFromRefreshJWT(final String token) {
-        Claims claims = Jwts.parser()
-                .setSigningKey(jwtRefreshSecret)
+    private Long getUserIdFromJWT(final String token,final String secret){
+        final Claims claims = Jwts.parser()
+                .setSigningKey(secret)
                 .parseClaimsJws(token)
                 .getBody();
 
         return Long.parseLong(claims.getSubject());
     }
 
-    public boolean ValidateRefreshToken(final String authToken){
-        return validate(authToken,jwtRefreshSecret);
+    public Long getUserIdFromAuthJWT(final String token) {
+        return getUserIdFromJWT(token,jwtSecret);
     }
 
-    public boolean validateToken(final String authToken) {
-        return validate(authToken,jwtSecret);
+    public Long getUserIdFromRefreshJWT(final String token) {
+        return getUserIdFromJWT(token,jwtRefreshSecret);
     }
 
     private boolean validate(final String Token, final String signature){
@@ -94,6 +82,14 @@ public class JwtProvider {
             System.out.println("JWT claims string is empty.");
         }
         return false;
+    }
+
+    public boolean ValidateRefreshToken(final String authToken){
+        return validate(authToken,jwtRefreshSecret);
+    }
+
+    public boolean validateToken(final String authToken) {
+        return validate(authToken,jwtSecret);
     }
 
 }

@@ -72,7 +72,7 @@ public class AuthController {
 
     private JwtAuthResponse generateJWTResponse(final UserIn user){
         return JwtAuthResponse.builder()
-                .authToken(jwtProvider.generateToken(user))
+                .authToken(jwtProvider.generateAuthToken(user))
                 .refreshToken(jwtProvider.generateRefresh(user))
                 .build();
     }
