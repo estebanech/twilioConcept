@@ -37,7 +37,7 @@ public class AuthController {
         if(user.isPresent())
             return ResponseEntity.ok(CustomSuccessResponse.success(generateJWTResponse(user.get())));
         else{
-            return ResponseEntity.badRequest().body(CustomErrorResponse.fail("Unable to create User",JwtAuthResponse.class));
+            return ResponseEntity.badRequest().body(CustomErrorResponse.fail("Unable to create User"));
         }
     }
 
@@ -49,7 +49,7 @@ public class AuthController {
                             .authyId(user.get().getAuthyId())
                             .build()));
         }
-        return ResponseEntity.badRequest().body(CustomErrorResponse.fail("Bad User Information", LogInResponse.class));
+        return ResponseEntity.badRequest().body(CustomErrorResponse.fail("Bad User Information"));
     }
 
     @PostMapping("/verify")
@@ -58,7 +58,7 @@ public class AuthController {
         if(user.isPresent()){
             return ResponseEntity.ok(CustomSuccessResponse.success(generateJWTResponse(user.get())));
         }
-        return ResponseEntity.badRequest().body(CustomErrorResponse.fail("Invalid Code", JwtAuthResponse.class));
+        return ResponseEntity.badRequest().body(CustomErrorResponse.fail("Invalid Code"));
     }
 
     @GetMapping("/refresh")
@@ -67,7 +67,7 @@ public class AuthController {
         if(user.isPresent()){
             return ResponseEntity.ok(CustomSuccessResponse.success(generateJWTResponse(user.get())));
         }
-        return ResponseEntity.badRequest().body(CustomErrorResponse.fail("Unable to Find a user for the Token", JwtAuthResponse.class));
+        return ResponseEntity.badRequest().body(CustomErrorResponse.fail("Unable to Find a user for the Token"));
     }
 
     private JwtAuthResponse generateJWTResponse(final UserIn user){

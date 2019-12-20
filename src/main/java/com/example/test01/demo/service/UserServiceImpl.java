@@ -46,7 +46,7 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public Optional<UserIn> logIn(LogInRequest request) {
+    public Optional<UserIn> logIn(final LogInRequest request) {
         final Optional<UserIn> user = userRepository.findByEmail(request.getEmail());
         if(!user.isPresent() || !passwordEncoder.matches(request.getPassword(),user.get().getPassword())){
             return Optional.empty();
@@ -56,7 +56,7 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public Optional<UserIn> verify(VerifyRequest request) {
+    public Optional<UserIn> verify(final VerifyRequest request) {
         try {
             final Tokens tokens = authyApiClient.getTokens();
             final Token response = tokens.verify(request.getAuthyId(), request.getCode());
@@ -78,7 +78,7 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public Optional<UserIn> refreshToken(String refreshToken) {
+    public Optional<UserIn> refreshToken(final String refreshToken) {
         if (jwtProvider.ValidateRefreshToken(refreshToken)) {
             final Long id = jwtProvider.getUserIdFromRefreshJWT(refreshToken);
             return userRepository.findById(id);

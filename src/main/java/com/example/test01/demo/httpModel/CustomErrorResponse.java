@@ -13,7 +13,7 @@ public class CustomErrorResponse <T> implements CustomResponse<T> {
 
     private String errorMessage;
 
-    public static <T> CustomErrorResponse <T> fail(String message, Class<T> clazz){
+    public static <T> CustomErrorResponse <T> fail(final String message){
         return CustomErrorResponse.
                 <T>builder()
                 .errorMessage(message)
