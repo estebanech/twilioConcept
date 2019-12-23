@@ -32,10 +32,13 @@ public class AuthController {
     private final JwtProvider jwtProvider;
 
     @PostMapping("/signup")
-    public ResponseEntity<CustomResponse<JwtAuthResponse>> signUp(final @Validated @RequestBody SignUpRequest request){
+    public ResponseEntity<CustomResponse<LogInResponse>> signUp(final @Validated @RequestBody SignUpRequest request){
         final Optional<UserIn> user = userService.createUser(request);
         if(user.isPresent())
-            return ResponseEntity.ok(CustomSuccessResponse.success(generateJWTResponse(user.get())));
+            //return ResponseEntity.ok(CustomSuccessResponse.success(generateJWTResponse(user.get())));
+            return ResponseEntity.ok(CustomSuccessResponse.success(LogInResponse.builder()
+                    .authyId(user.get().getAuthyId())
+                    .build()));
         else{
             return ResponseEntity.badRequest().body(CustomErrorResponse.fail("Unable to create User"));
         }
