@@ -4,5 +4,6 @@ import lombok.Data;
 
 @Data
 public class TextModel {
+    
     private String content;
 }
