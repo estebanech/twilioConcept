@@ -1,10 +1,11 @@
 package com.example.test01.demo.client.lord.model.book;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 
 @Data
-@AllArgsConstructor
+@Builder
 public class Book {
     private String _id;
     private String name;

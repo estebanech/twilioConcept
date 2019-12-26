@@ -6,13 +6,13 @@ import com.example.test01.demo.client.lord.model.book.GetAllBooksRequest;
 import com.example.test01.demo.client.lord.model.book.GetAllBooksResponse;
 import com.example.test01.demo.client.lord.model.book.GetOneBookRequest;
 import com.example.test01.demo.client.lord.model.chapter.Chapter;
+import com.example.test01.demo.client.lord.model.chapter.ChapterWithBook;
 import com.example.test01.demo.client.lord.model.chapter.GetListRequest;
 import com.example.test01.demo.client.lord.model.chapter.GetListResponse;
-import com.example.test01.demo.httpModel.user.GetAllResponse;
+import com.example.test01.demo.client.lord.model.chapter.MappedChaptersResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -22,7 +22,6 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
@@ -98,7 +97,7 @@ public class LordClientImpl implements LordClient {
     }
 
     @Override
-    public GetListResponse getChaptersByBookId(final String id){
+    public MappedChaptersResponse getChaptersByBookId(final String id){
         final Book book = getOneBook(id);
         final LordRequest<GetListRequest, GetListResponse> request = LordRequest.
                 <GetListRequest,GetListResponse>builder()
@@ -106,17 +105,11 @@ public class LordClientImpl implements LordClient {
                 .clazz(GetListResponse.class)
                 .build();
         final GetListResponse chapters = makeRequest(request);
-        return GetListResponse.builder()
-                .docs(chapters.getDocs().stream().map(chapter -> Chapter.builder()
-                        ._id(chapter.get_id())
-                        .book(book.getName())
-                        .build())
-                        .collect(Collectors.toList()))
-                .build();
+        return transformBookIdByBook(chapters,book);
     }
 
     @Override
-    public GetListResponse getAllChapters(){
+    public MappedChaptersResponse getAllChapters(){
         final LordRequest<GetListRequest, GetListResponse> request = LordRequest.
                 <GetListRequest,GetListResponse>builder()
                 .path("/chapter")
@@ -125,14 +118,24 @@ public class LordClientImpl implements LordClient {
                 .build();
         final GetListResponse chapters = makeRequest(request);
         final GetAllBooksResponse books = getAllBooks();
-        return  GetListResponse.builder()
-                .docs(chaptersBookIdToName(chapters.getDocs(),books.getDocs()))
+        return transformBookIdByListOfBooks(chapters,books.getDocs());
+    }
+
+    private MappedChaptersResponse transformBookIdByBook(final GetListResponse listResponse, final Book book){
+        return MappedChaptersResponse.builder()
+                .docs(listResponse.getDocs().stream().map(chapter -> ChapterWithBook.builder()
+                        ._id(chapter.get_id())
+                        .book(book)
+                        .build())
+                        .collect(Collectors.toList()))
                 .build();
     }
 
-    private List<Chapter> chaptersBookIdToName(final List<Chapter> chapters, final List<Book> books){
-        return chapters.stream()
-                .map(chapter -> Chapter.transformBookIdToName(chapter,books))
-                .collect(Collectors.toList());
+    private MappedChaptersResponse transformBookIdByListOfBooks(final GetListResponse listResponse, final List<Book> books){
+        return MappedChaptersResponse.builder()
+                .docs(listResponse.getDocs().stream()
+                        .map((chapter)->Chapter.transformBookIdToName(chapter,books))
+                        .collect(Collectors.toList()))
+                .build();
     }
 }
