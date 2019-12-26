@@ -49,7 +49,7 @@ class LordControllerTest {
     }
 
     @Test
-    void getById() {
+    void checkIfControllerIsGettingABookFromClient() {
         final String wrongId = "1234567890";
         final String rightId = "0987654321";
         final Book book = Book.builder()
@@ -67,7 +67,7 @@ class LordControllerTest {
     }
 
     @Test
-    void getChaptersOfBook() {
+    void CheckIfControllerIsGettingALisOfChaptersOfABookFromClient() {
         final String wrongBookId = "1234567890";
         final String rightBookId = "0987654321";
         final String chapterId = "13579";
@@ -92,7 +92,7 @@ class LordControllerTest {
     }
 
     @Test
-    void getAllChapters() {
+    void CheckIfControllerIsGettingALisOfChaptersFromClient() {
         final String bookId = "0987654321";
         final String chapterId = "13579";
         final Book book = Book.builder()
