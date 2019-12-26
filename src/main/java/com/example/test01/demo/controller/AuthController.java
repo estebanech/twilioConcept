@@ -10,7 +10,7 @@ import com.example.test01.demo.httpModel.auth.LogInResponse;
 import com.example.test01.demo.httpModel.auth.SignUpRequest;
 import com.example.test01.demo.httpModel.auth.VerifyRequest;
 import com.example.test01.demo.security.JwtProvider;
-import com.example.test01.demo.service.UserServiceImpl;
+import com.example.test01.demo.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -28,7 +28,7 @@ import java.util.Optional;
 @AllArgsConstructor
 public class AuthController {
 
-    private final UserServiceImpl userService;
+    private final UserService userService;
     private final JwtProvider jwtProvider;
 
     @PostMapping("/signup")
