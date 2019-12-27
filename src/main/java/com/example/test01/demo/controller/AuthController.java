@@ -34,43 +34,37 @@ public class AuthController {
     @PostMapping("/signup")
     public ResponseEntity<CustomResponse<LogInResponse>> signUp(final @Validated @RequestBody SignUpRequest request){
         final Optional<UserIn> user = userService.createUser(request);
-        if(user.isPresent())
-            //return ResponseEntity.ok(CustomSuccessResponse.success(generateJWTResponse(user.get())));
-            return ResponseEntity.ok(CustomSuccessResponse.success(LogInResponse.builder()
-                    .authyId(user.get().getAuthyId())
-                    .build()));
-        else{
-            return ResponseEntity.badRequest().body(CustomErrorResponse.fail("Unable to create User"));
-        }
+        //return ResponseEntity.ok(CustomSuccessResponse.success(generateJWTResponse(user.get())));
+        return user.<ResponseEntity<CustomResponse<LogInResponse>>>map(userIn ->
+                ResponseEntity.ok(CustomSuccessResponse.success(
+                        LogInResponse.builder().authyId(userIn.getAuthyId()).build()))
+        ).orElseGet(() -> ResponseEntity.badRequest().body(CustomErrorResponse.fail("Unable to create User")));
     }
 
     @PostMapping("/login")
     public ResponseEntity<CustomResponse<LogInResponse>> logIn(final @Validated @RequestBody LogInRequest request){
         final Optional<UserIn> user = userService.logIn(request);
-        if(user.isPresent()){
-            return ResponseEntity.ok(CustomSuccessResponse.success(LogInResponse.builder()
-                            .authyId(user.get().getAuthyId())
-                            .build()));
-        }
-        return ResponseEntity.badRequest().body(CustomErrorResponse.fail("Bad User Information"));
+        return user.<ResponseEntity<CustomResponse<LogInResponse>>>map(userIn ->
+                ResponseEntity.ok(CustomSuccessResponse.success(
+                        LogInResponse.builder().authyId(userIn.getAuthyId()).build()))
+        ).orElseGet(() -> ResponseEntity.badRequest().body(CustomErrorResponse.fail("Unable to create User")));
     }
 
     @PostMapping("/verify")
     public ResponseEntity<CustomResponse<JwtAuthResponse>> verify(final @Validated @RequestBody VerifyRequest request){
         final Optional<UserIn> user = userService.verify(request);
-        if(user.isPresent()){
-            return ResponseEntity.ok(CustomSuccessResponse.success(generateJWTResponse(user.get())));
-        }
-        return ResponseEntity.badRequest().body(CustomErrorResponse.fail("Invalid Code"));
+        return user.<ResponseEntity<CustomResponse<JwtAuthResponse>>>map(
+                userIn -> ResponseEntity.ok(CustomSuccessResponse.success(generateJWTResponse(userIn)))
+        ).orElseGet(() -> ResponseEntity.badRequest().body(CustomErrorResponse.fail("Invalid Code")));
     }
 
     @GetMapping("/refresh")
     public ResponseEntity<CustomResponse<JwtAuthResponse>> refresh(final @Validated @RequestHeader(value = "refreshToken") String token){
         final Optional<UserIn> user = userService.refreshToken(token);
-        if(user.isPresent()){
-            return ResponseEntity.ok(CustomSuccessResponse.success(generateJWTResponse(user.get())));
-        }
-        return ResponseEntity.badRequest().body(CustomErrorResponse.fail("Unable to Find a user for the Token"));
+        return user.<ResponseEntity<CustomResponse<JwtAuthResponse>>>map(
+                userIn -> ResponseEntity.ok(CustomSuccessResponse.success(generateJWTResponse(userIn)))
+        ).orElseGet(() -> ResponseEntity.badRequest()
+                .body(CustomErrorResponse.fail("Unable to Find a user for the Token")));
     }
 
     private JwtAuthResponse generateJWTResponse(final UserIn user){
