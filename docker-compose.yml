@@ -13,8 +13,9 @@ services:
       - MYSQL_DATABASE=authytest01
       - MYSQL_USER=esteban
       - MYSQL_PASSWORD=test4echo
-  spring-boot-jpa-docker-webapp:
-    image: spring-boot-jpa-image
+  twilio-concept-app:
+    image: twilio-concept-app
+    container_name: twilio-concept-app
     build:
       context: .
       dockerfile: DockerFile
