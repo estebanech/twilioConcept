@@ -12,5 +12,5 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MappedChaptersResponse {
-    private List<ChapterWithBook> docs;
+    private List<ChapterWithBook> chapters;
 }

@@ -117,12 +117,12 @@ public class LordClientImpl implements LordClient {
                 .build();
         final GetListResponse chapters = makeRequest(request);
         final GetAllBooksResponse books = getAllBooks();
-        return transformBookIdByListOfBooks(chapters,books.getDocs());
+        return transformBookIdByListOfBooks(chapters,books.getBooks());
     }
 
     private MappedChaptersResponse transformBookIdByBook(final GetListResponse listResponse, final Book book){
         return MappedChaptersResponse.builder()
-                .docs(listResponse.getDocs().stream().map(chapter -> ChapterWithBook.builder()
+                .chapters(listResponse.getDocs().stream().map(chapter -> ChapterWithBook.builder()
                         ._id(chapter.get_id())
                         .book(book)
                         .build())
@@ -132,7 +132,7 @@ public class LordClientImpl implements LordClient {
 
     private MappedChaptersResponse transformBookIdByListOfBooks(final GetListResponse listResponse, final List<Book> books){
         return MappedChaptersResponse.builder()
-                .docs(listResponse.getDocs().stream()
+                .chapters(listResponse.getDocs().stream()
                         .map((chapter)->Chapter.transformBookIdToName(chapter,books))
                         .collect(Collectors.toList()))
                 .build();

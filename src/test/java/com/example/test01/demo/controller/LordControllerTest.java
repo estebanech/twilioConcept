@@ -40,11 +40,11 @@ class LordControllerTest {
                 ._id("0987654321")
                 .name("my personal book")
                 .build());
-        final GetAllBooksResponse expectedResponse = GetAllBooksResponse.builder().docs(books).build();
+        final GetAllBooksResponse expectedResponse = GetAllBooksResponse.builder().books(books).build();
         when(client.getAllBooks()).thenReturn(expectedResponse);
         final ResponseEntity<GetAllBooksResponse> controllerResponse = controller.getAll();
-        assertNotEquals(Objects.requireNonNull(controllerResponse.getBody()).getDocs(),Collections.EMPTY_LIST);
-        assertEquals(controllerResponse.getBody().getDocs(),expectedResponse.getDocs());
+        assertNotEquals(Objects.requireNonNull(controllerResponse.getBody()).getBooks(),Collections.EMPTY_LIST);
+        assertEquals(controllerResponse.getBody().getBooks(),expectedResponse.getBooks());
 
     }
 
@@ -79,7 +79,7 @@ class LordControllerTest {
                 ._id(chapterId)
                 .book(book)
                 .build());
-        final MappedChaptersResponse expectedResponse = MappedChaptersResponse.builder().docs(chapters).build();
+        final MappedChaptersResponse expectedResponse = MappedChaptersResponse.builder().chapters(chapters).build();
         when(client.getChaptersByBookId(wrongBookId)).thenThrow(new LordClientException(
                 ResponseEntity.badRequest().build()));
         when(client.getChaptersByBookId(rightBookId)).thenReturn(expectedResponse);
@@ -103,10 +103,10 @@ class LordControllerTest {
                 ._id(chapterId)
                 .book(book)
                 .build());
-        final MappedChaptersResponse expectedResponse = MappedChaptersResponse.builder().docs(chapters).build();
+        final MappedChaptersResponse expectedResponse = MappedChaptersResponse.builder().chapters(chapters).build();
         when(client.getAllChapters()).thenReturn(expectedResponse);
         final ResponseEntity<MappedChaptersResponse> controllerResponse = controller.getAllChapters();
-        assertNotEquals(Objects.requireNonNull(controllerResponse.getBody()).getDocs(),Collections.EMPTY_LIST);
-        assertEquals(controllerResponse.getBody().getDocs(),expectedResponse.getDocs());
+        assertNotEquals(Objects.requireNonNull(controllerResponse.getBody()).getChapters(),Collections.EMPTY_LIST);
+        assertEquals(controllerResponse.getBody().getChapters(),expectedResponse.getChapters());
     }
 }
