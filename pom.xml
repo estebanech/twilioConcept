@@ -43,6 +43,7 @@
 		<profile>
 			<id>prod</id>
 			<properties>
+				<skipTests>true</skipTests>
 				<spring.profiles.active>
 					prod
 				</spring.profiles.active>

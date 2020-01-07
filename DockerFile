@@ -1,0 +1,18 @@
+FROM ubuntu:latest as update
+RUN apt update
+RUN apt install mysql-client -y
+
+FROM maven:3.6.3-jdk-8 as build
+COPY ./pom.xml ./pom.xml
+COPY ./src ./src
+RUN mvn -Denv=prod clean install -P prod
+
+
+FROM openjdk:8-jdk-alpine
+LABEL maintainer="echeverri.esteban@gmail.com"
+VOLUME /tmp
+ARG JAR_FILE=target/demo-0.0.1-SNAPSHOT.jar
+COPY --from=build ./target/demo-0.0.1-SNAPSHOT.jar ./demo.jar
+#ADD ${JAR_FILE} demo.jar
+EXPOSE 8080
+ENTRYPOINT ["java","-jar","-Djava.security.egd=file:/dev/./urandom","demo.jar"]
