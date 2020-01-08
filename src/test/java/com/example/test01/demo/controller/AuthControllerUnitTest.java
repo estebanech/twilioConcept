@@ -13,7 +13,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
@@ -31,7 +30,7 @@ import static org.mockito.Mockito.when;
 @ActiveProfiles("test")
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-class AuthControllerTest {
+class AuthControllerUnitTest {
 
     @MockBean
     private UserService service;
@@ -61,55 +60,66 @@ class AuthControllerTest {
     }
 
     @Test
-    void checkSingUpBehavior() {
+    void sing_up_success_for_a_valid_user_info(){
         final SignUpRequest rightRequest = new SignUpRequest();
         rightRequest.setEmail("test@test");
         rightRequest.setPhone("1975482967");
         rightRequest.setCountryCode("15");
         rightRequest.setPassword("123456");
-        final SignUpRequest wrongRequest = new SignUpRequest();
-        wrongRequest.setEmail("wrong@test");
-        wrongRequest.setPhone("1975482967");
-        wrongRequest.setCountryCode("15");
-        wrongRequest.setPassword("123456");
         when(service.createUser(rightRequest)).thenReturn(Optional.of(validUser));
-        when(service.createUser(wrongRequest)).thenReturn(Optional.empty());
-        final ResponseEntity<CustomResponse<LogInResponse>> wrongResponse = controller.signUp(wrongRequest);
-        assertEquals(wrongResponse.getStatusCode(),HttpStatus.BAD_REQUEST);
         final ResponseEntity<CustomResponse<LogInResponse>> controllerResponse = controller.signUp(rightRequest);
         assertEquals(0, Objects.requireNonNull(controllerResponse.getBody()).getData().getAuthyId());
     }
 
     @Test
-    void checkLonInBehavior() {
+    void sing_up_failure_for_invalid_user_info(){
+        final SignUpRequest wrongRequest = new SignUpRequest();
+        wrongRequest.setEmail("wrong@test");
+        wrongRequest.setPhone("1975482967");
+        wrongRequest.setCountryCode("15");
+        wrongRequest.setPassword("123456");
+        when(service.createUser(wrongRequest)).thenReturn(Optional.empty());
+        final ResponseEntity<CustomResponse<LogInResponse>> wrongResponse = controller.signUp(wrongRequest);
+        assertEquals(wrongResponse.getStatusCode(),HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    void log_in_success_for_a_valid_user_info(){
         final LogInRequest rightRequest = new LogInRequest();
         rightRequest.setEmail("test@test");
         rightRequest.setPassword("123456");
-        final LogInRequest wrongRequest = new LogInRequest();
-        wrongRequest.setEmail("wrog@test");
-        wrongRequest.setPassword("123456");
         when(service.logIn(rightRequest)).thenReturn(Optional.of(validUser));
-        when(service.logIn(wrongRequest)).thenReturn(Optional.empty());
-        final ResponseEntity<CustomResponse<LogInResponse>> wrongResponse = controller.logIn(wrongRequest);
-        assertEquals(wrongResponse.getStatusCode(),HttpStatus.BAD_REQUEST);
         final ResponseEntity<CustomResponse<LogInResponse>> controllerResponse = controller.logIn(rightRequest);
         assertEquals(0, Objects.requireNonNull(controllerResponse.getBody()).getData().getAuthyId());
     }
 
     @Test
-    void checkVerifyBehavior() {
+    void log_in_failure_for_an_invalid_user_info(){
+        final LogInRequest wrongRequest = new LogInRequest();
+        wrongRequest.setEmail("wrog@test");
+        wrongRequest.setPassword("123456");
+        when(service.logIn(wrongRequest)).thenReturn(Optional.empty());
+        final ResponseEntity<CustomResponse<LogInResponse>> wrongResponse = controller.logIn(wrongRequest);
+        assertEquals(wrongResponse.getStatusCode(),HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    void verify_success_by_valid_code(){
         final VerifyRequest rightRequest = new VerifyRequest();
         rightRequest.setAuthyId(123456);
         rightRequest.setCode("198765");
-        final VerifyRequest wrongRequest = new VerifyRequest();
-        wrongRequest.setAuthyId(123456);
-        wrongRequest.setCode("651824");
         when(service.verify(rightRequest)).thenReturn(Optional.of(validUser));
-        when(service.verify(wrongRequest)).thenReturn(Optional.empty());
-        final ResponseEntity<CustomResponse<JwtAuthResponse>> wrongResponse = controller.verify(wrongRequest);
-        assertEquals(wrongResponse.getStatusCode(), HttpStatus.BAD_REQUEST);
         final ResponseEntity<CustomResponse<JwtAuthResponse>> controllerResponse = controller.verify(rightRequest);
         assertEquals(controllerResponse.getStatusCode(), HttpStatus.OK);
     }
 
+    @Test
+    void verify_failure_by_invalid_code(){
+        final VerifyRequest wrongRequest = new VerifyRequest();
+        wrongRequest.setAuthyId(123456);
+        wrongRequest.setCode("651824");
+        when(service.verify(wrongRequest)).thenReturn(Optional.empty());
+        final ResponseEntity<CustomResponse<JwtAuthResponse>> wrongResponse = controller.verify(wrongRequest);
+        assertEquals(wrongResponse.getStatusCode(), HttpStatus.BAD_REQUEST);
+    }
 }
