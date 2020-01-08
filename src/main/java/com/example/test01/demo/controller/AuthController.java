@@ -10,7 +10,7 @@ import com.example.test01.demo.httpModel.auth.LogInResponse;
 import com.example.test01.demo.httpModel.auth.SignUpRequest;
 import com.example.test01.demo.httpModel.auth.VerifyRequest;
 import com.example.test01.demo.security.JwtProvider;
-import com.example.test01.demo.service.UserServiceImpl;
+import com.example.test01.demo.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -28,46 +28,43 @@ import java.util.Optional;
 @AllArgsConstructor
 public class AuthController {
 
-    private final UserServiceImpl userService;
+    private final UserService userService;
     private final JwtProvider jwtProvider;
 
     @PostMapping("/signup")
-    public ResponseEntity<CustomResponse<JwtAuthResponse>> signUp(final @Validated @RequestBody SignUpRequest request){
+    public ResponseEntity<CustomResponse<LogInResponse>> signUp(final @Validated @RequestBody SignUpRequest request){
         final Optional<UserIn> user = userService.createUser(request);
-        if(user.isPresent())
-            return ResponseEntity.ok(CustomSuccessResponse.success(generateJWTResponse(user.get())));
-        else{
-            return ResponseEntity.badRequest().body(CustomErrorResponse.fail("Unable to create User"));
-        }
+        //return ResponseEntity.ok(CustomSuccessResponse.success(generateJWTResponse(user.get())));
+        return user.<ResponseEntity<CustomResponse<LogInResponse>>>map(userIn ->
+                ResponseEntity.ok(CustomSuccessResponse.success(
+                        LogInResponse.builder().authyId(userIn.getAuthyId()).build()))
+        ).orElseGet(() -> ResponseEntity.badRequest().body(CustomErrorResponse.fail("Unable to create User")));
     }
 
     @PostMapping("/login")
     public ResponseEntity<CustomResponse<LogInResponse>> logIn(final @Validated @RequestBody LogInRequest request){
         final Optional<UserIn> user = userService.logIn(request);
-        if(user.isPresent()){
-            return ResponseEntity.ok(CustomSuccessResponse.success(LogInResponse.builder()
-                            .authyId(user.get().getAuthyId())
-                            .build()));
-        }
-        return ResponseEntity.badRequest().body(CustomErrorResponse.fail("Bad User Information"));
+        return user.<ResponseEntity<CustomResponse<LogInResponse>>>map(userIn ->
+                ResponseEntity.ok(CustomSuccessResponse.success(
+                        LogInResponse.builder().authyId(userIn.getAuthyId()).build()))
+        ).orElseGet(() -> ResponseEntity.badRequest().body(CustomErrorResponse.fail("Unable to create User")));
     }
 
     @PostMapping("/verify")
     public ResponseEntity<CustomResponse<JwtAuthResponse>> verify(final @Validated @RequestBody VerifyRequest request){
         final Optional<UserIn> user = userService.verify(request);
-        if(user.isPresent()){
-            return ResponseEntity.ok(CustomSuccessResponse.success(generateJWTResponse(user.get())));
-        }
-        return ResponseEntity.badRequest().body(CustomErrorResponse.fail("Invalid Code"));
+        return user.<ResponseEntity<CustomResponse<JwtAuthResponse>>>map(
+                userIn -> ResponseEntity.ok(CustomSuccessResponse.success(generateJWTResponse(userIn)))
+        ).orElseGet(() -> ResponseEntity.badRequest().body(CustomErrorResponse.fail("Invalid Code")));
     }
 
     @GetMapping("/refresh")
     public ResponseEntity<CustomResponse<JwtAuthResponse>> refresh(final @Validated @RequestHeader(value = "refreshToken") String token){
         final Optional<UserIn> user = userService.refreshToken(token);
-        if(user.isPresent()){
-            return ResponseEntity.ok(CustomSuccessResponse.success(generateJWTResponse(user.get())));
-        }
-        return ResponseEntity.badRequest().body(CustomErrorResponse.fail("Unable to Find a user for the Token"));
+        return user.<ResponseEntity<CustomResponse<JwtAuthResponse>>>map(
+                userIn -> ResponseEntity.ok(CustomSuccessResponse.success(generateJWTResponse(userIn)))
+        ).orElseGet(() -> ResponseEntity.badRequest()
+                .body(CustomErrorResponse.fail("Unable to Find a user for the Token")));
     }
 
     private JwtAuthResponse generateJWTResponse(final UserIn user){

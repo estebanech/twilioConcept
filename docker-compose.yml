@@ -1,0 +1,36 @@
+version: '3'
+
+services:
+  twilio-mysql:
+    container_name: twilio-mysql
+    image: mysql:latest
+    ports:
+      - "13306:3306"
+    networks:
+      - mt-network
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=authytest01
+      - MYSQL_USER=esteban
+      - MYSQL_PASSWORD=test4echo
+  twilio-concept-app:
+    image: twilio-concept-app
+    container_name: twilio-concept-app
+    build:
+      context: .
+      dockerfile: DockerFile
+    networks:
+      - mt-network
+    ports:
+      - 8081:8080
+    environment:
+      - DATABASE_HOST=twilio-mysql
+      - DATABASE_USER=esteban
+      - DATABASE_PASSWORD=test4echo
+      - DATABASE_NAME=authytest01
+      - DATABASE_PORT=3306
+    depends_on:
+      - twilio-mysql
+networks:
+  mt-network:
+    driver: bridge

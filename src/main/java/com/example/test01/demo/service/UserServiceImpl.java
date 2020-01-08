@@ -40,6 +40,7 @@ public class UserServiceImpl implements UserService{
                     .authyId(authyId)
                     .build();
             userRepository.save(user);
+            sendSMS(user.getAuthyId());
             return Optional.of(user);
         }
         return Optional.empty();
