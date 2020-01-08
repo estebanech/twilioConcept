@@ -43,7 +43,7 @@
 		<profile>
 			<id>prod</id>
 			<properties>
-				<skipTests>true</skipTests>
+				<!--<skipTests>true</skipTests>-->
 				<spring.profiles.active>
 					prod
 				</spring.profiles.active>
@@ -62,6 +62,13 @@
 	</profiles>
 
 	<dependencies>
+		<!-- h2 dependency -->
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>runtime</scope>
+			<version>1.4.199</version>
+		</dependency>
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-engine</artifactId>
