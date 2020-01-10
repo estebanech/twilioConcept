@@ -23,6 +23,8 @@ services:
       - mt-network
     ports:
       - 8081:8080
+      - 8082:8180
+      - 8083:8181
     environment:
       - DATABASE_HOST=twilio-mysql
       - DATABASE_USER=esteban

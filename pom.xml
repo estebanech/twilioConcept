@@ -62,6 +62,12 @@
 	</profiles>
 
 	<dependencies>
+		<!-- WireMock dependency-->
+		<dependency>
+			<groupId>com.github.tomakehurst</groupId>
+			<artifactId>wiremock</artifactId>
+			<version>2.25.1</version>
+		</dependency>
 		<!-- h2 dependency -->
 		<dependency>
 			<groupId>com.h2database</groupId>
