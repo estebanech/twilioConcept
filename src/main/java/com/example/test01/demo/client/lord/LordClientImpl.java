@@ -12,6 +12,7 @@ import com.example.test01.demo.client.lord.model.chapter.GetListResponse;
 import com.example.test01.demo.client.lord.model.chapter.MappedChaptersResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -32,7 +33,8 @@ public class LordClientImpl implements LordClient {
 
     private final LordProperties properties;
 
-    @Qualifier("lordRestTemplate") private final RestTemplate restTemplate;
+    @Qualifier("lordRestTemplate")
+    private final RestTemplate restTemplate;
 
     private HttpHeaders getHeaders(){
         final HttpHeaders headers = new HttpHeaders();
