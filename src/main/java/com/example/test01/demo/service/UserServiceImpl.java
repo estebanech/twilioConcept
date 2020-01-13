@@ -39,8 +39,8 @@ public class UserServiceImpl implements UserService{
                     .countryCode(request.getCountryCode())
                     .authyId(authyId)
                     .build();
-            userRepository.save(user);
             sendSMS(user.getAuthyId());
+            userRepository.save(user);
             return Optional.of(user);
         }
         return Optional.empty();
@@ -59,10 +59,13 @@ public class UserServiceImpl implements UserService{
     @Override
     public Optional<UserIn> verify(final VerifyRequest request) {
         try {
+            final UserIn user = userRepository.findById(
+                    jwtProvider.getUserIdFromAuthyJWT(request.getAuthyToken()))
+                    .orElseThrow(()-> new RuntimeException("Unable to find User"));
             final Tokens tokens = authyApiClient.getTokens();
-            final Token response = tokens.verify(request.getAuthyId(), request.getCode());
+            final Token response = tokens.verify(user.getAuthyId(), request.getCode());
             if (response.isOk()) {
-                return userRepository.findByAuthyId(request.getAuthyId());
+                return userRepository.findByAuthyId(user.getAuthyId());
             }
             else{
                 return Optional.empty();

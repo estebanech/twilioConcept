@@ -9,7 +9,7 @@ import javax.validation.constraints.NotNull;
 public class VerifyRequest {
 
     @NotNull
-    private int authyId;
+    private String authyToken;
 
     @NotBlank
     private String code;

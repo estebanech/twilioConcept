@@ -4,9 +4,9 @@ import com.example.test01.demo.entity.UserIn;
 import com.example.test01.demo.httpModel.CustomErrorResponse;
 import com.example.test01.demo.httpModel.CustomResponse;
 import com.example.test01.demo.httpModel.CustomSuccessResponse;
+import com.example.test01.demo.httpModel.auth.AccessResponse;
 import com.example.test01.demo.httpModel.auth.JwtAuthResponse;
 import com.example.test01.demo.httpModel.auth.LogInRequest;
-import com.example.test01.demo.httpModel.auth.LogInResponse;
 import com.example.test01.demo.httpModel.auth.SignUpRequest;
 import com.example.test01.demo.httpModel.auth.VerifyRequest;
 import com.example.test01.demo.security.JwtProvider;
@@ -32,21 +32,24 @@ public class AuthController {
     private final JwtProvider jwtProvider;
 
     @PostMapping("/signup")
-    public ResponseEntity<CustomResponse<LogInResponse>> signUp(final @Validated @RequestBody SignUpRequest request){
+    public ResponseEntity<CustomResponse<AccessResponse>> signUp(final @Validated @RequestBody SignUpRequest request){
         final Optional<UserIn> user = userService.createUser(request);
-        //return ResponseEntity.ok(CustomSuccessResponse.success(generateJWTResponse(user.get())));
-        return user.<ResponseEntity<CustomResponse<LogInResponse>>>map(userIn ->
+        return user.<ResponseEntity<CustomResponse<AccessResponse>>>map(userIn ->
                 ResponseEntity.ok(CustomSuccessResponse.success(
-                        LogInResponse.builder().authyId(userIn.getAuthyId()).build()))
+                        AccessResponse.builder()
+                                .authyToken(jwtProvider.generateAuthy(userIn))
+                                .build()))
         ).orElseGet(() -> ResponseEntity.badRequest().body(CustomErrorResponse.fail("Unable to create User")));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<CustomResponse<LogInResponse>> logIn(final @Validated @RequestBody LogInRequest request){
+    public ResponseEntity<CustomResponse<AccessResponse>> logIn(final @Validated @RequestBody LogInRequest request){
         final Optional<UserIn> user = userService.logIn(request);
-        return user.<ResponseEntity<CustomResponse<LogInResponse>>>map(userIn ->
+        return user.<ResponseEntity<CustomResponse<AccessResponse>>>map(userIn ->
                 ResponseEntity.ok(CustomSuccessResponse.success(
-                        LogInResponse.builder().authyId(userIn.getAuthyId()).build()))
+                        AccessResponse.builder()
+                                .authyToken(jwtProvider.generateAuthy(userIn))
+                                .build()))
         ).orElseGet(() -> ResponseEntity.badRequest().body(CustomErrorResponse.fail("Unable to create User")));
     }
 

@@ -30,6 +30,12 @@ public class JwtProvider {
     @Value("${app.jwtRefreshExpirationInMs}")
     private int jwtRefreshExpirationInMs;
 
+    @Value("${app.jwtAuthySecret}")
+    private String jwtAuthySecret;
+
+    @Value("${app.jwtAuthyhExpirationInMs}")
+    private int jwtAuthyhExpirationInMs;
+
     private String generateToken(final UserIn user, final String secret, final int expiration,final SignatureAlgorithm algorithm){
         final LocalDateTime now = LocalDateTime.now();
         final LocalDateTime expire = now.plusSeconds(expiration);
@@ -49,6 +55,10 @@ public class JwtProvider {
         return generateToken(user,jwtRefreshSecret,jwtRefreshExpirationInMs,SignatureAlgorithm.HS512);
     }
 
+    public String generateAuthy(final UserIn user){
+        return generateToken(user,jwtAuthySecret,jwtAuthyhExpirationInMs,SignatureAlgorithm.HS512);
+    }
+
     private Long getUserIdFromJWT(final String token,final String secret){
         final Claims claims = Jwts.parser()
                 .setSigningKey(secret)
@@ -64,6 +74,10 @@ public class JwtProvider {
 
     public Long getUserIdFromRefreshJWT(final String token) {
         return getUserIdFromJWT(token,jwtRefreshSecret);
+    }
+
+    public Long getUserIdFromAuthyJWT(final String token) {
+        return getUserIdFromJWT(token,jwtAuthySecret);
     }
 
     private boolean validate(final String Token, final String signature){
@@ -82,6 +96,10 @@ public class JwtProvider {
             System.out.println("JWT claims string is empty.");
         }
         return false;
+    }
+
+    public boolean ValidateAuthyToken(final String authToken){
+        return validate(authToken,jwtAuthySecret);
     }
 
     public boolean ValidateRefreshToken(final String authToken){

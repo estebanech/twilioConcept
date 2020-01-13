@@ -125,7 +125,8 @@ class AuthControllerUnitTest {
     @Test
     void verify_success_by_valid_code() throws Exception {
         final VerifyRequest rightRequest = new VerifyRequest();
-        rightRequest.setAuthyId(123456);
+
+        rightRequest.setAuthyToken("123456");
         rightRequest.setCode("198765");
         when(service.verify(rightRequest)).thenReturn(Optional.of(validUser));
         doPostRequestForJwtSuccessTest("/api/auth/verify",rightRequest);
@@ -134,7 +135,7 @@ class AuthControllerUnitTest {
     @Test
     void verify_failure_by_invalid_code() throws Exception {
         final VerifyRequest wrongRequest = new VerifyRequest();
-        wrongRequest.setAuthyId(123456);
+        wrongRequest.setAuthyToken("123456");
         wrongRequest.setCode("651824");
         when(service.verify(wrongRequest)).thenReturn(Optional.empty());
         doPostRequestFailureTest("/api/auth/verify",wrongRequest);
